@@ -1,0 +1,87 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('bk.jpg');  /* Added this line */
+    background-size: cover;  /* Ensures the image covers the entire viewport */
+    background-repeat: no-repeat;  /* Prevents image from repeating */
+    background-position: center center;  /* Centers the image */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  /* Added to ensure space between logo and login padding */
+    width: 65%;  /* Specifying a width to ensure space on larger screens */
+}
+
+.logo {
+    width: 500px;  /* Increased size of the logo */
+    margin-bottom: 15px;
+}
+
+.logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Adjusted from flex-start to center */
+    margin-right: 80px;
+}
+
+h1 {
+    text-align: center;  /* Adjusted from left to center */
+    margin: 0;
+    font-size: 50px;
+    margin-top: 10px;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.container {
+    width: 50%;
+    max-width: 400px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.login-btn {
+    padding: 10px;
+    background-color: #007BFF;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #0056b3;
+}
+
+a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
