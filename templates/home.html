@@ -7,17 +7,21 @@
 					Welcome!!<br>
 				</span>
 
-				<!-- Add this part for file import -->
+				<!-- Part for file import -->
 				<form action="/import" method="post" enctype="multipart/form-data">
 					<input type="file" name="file" accept=".csv,.xlsx">
 					<button type="submit">Import File</button>
 				</form>
-				<!-- End of new part -->
+				<!-- End of import part -->
+
+				<!-- Start of download part -->
+				<div class="container-login100-form-btn m-t-17">
+					<a class="login100-form-btn" href="/export">Download Data</a>
+				</div>
+				<!-- End of download part -->
 
 				<div class="container-login100-form-btn m-t-17">
-					<button class="login100-form-btn">
-						<a class="login100-form-btn" href="/logout">Logout</a>
-					</button>
+					<a class="login100-form-btn" href="/logout">Logout</a>
 				</div>
 			</div>
 		</div>

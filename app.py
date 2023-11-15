@@ -1,30 +1,36 @@
 from flask import Flask, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd  # Correct way to import pandas
+import psycopg2
+from flask import Flask, url_for, render_template, request, redirect, session, make_response
+
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5433/csvfile'
 
+
+db = SQLAlchemy(app)
 
 class CSVData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    iteration = db.Column(db.Integer)
-    cpu_time = db.Column(db.Integer)
-    phys_time = db.Column(db.Integer)
-    travels = db.Column(db.Integer)
-    value = db.Column(db.Integer)
-    av_value = db.Column(db.Integer)
-    min_value = db.Column(db.Integer)
-    max_value = db.Column(db.Integer)
-    delta = db.Column(db.Integer)
-    criteria = db.Column(db.Integer)
-    prev_av_ref_value = db.Column(db.Integer)
-    progress = db.Column(db.Integer)
-    criteria_type = db.Column(db.Integer)
-    criteria_var_type = db.Column(db.Integer)
-    criteria_percentage = db.Column(db.Integer, __tablename__='CSVData')  # Set the table name to 'CSVData'
-    
+    Iteration = db.Column(db.Float)
+    CPUTime = db.Column(db.Float)
+    PhysTime = db.Column(db.Float)
+    Travels = db.Column(db.Float)
+    Value = db.Column(db.Float)
+    AvValue = db.Column(db.Float)
+    MinValue = db.Column(db.Float)
+    MaxValue = db.Column(db.Float)
+    Delta = db.Column(db.Float)
+    Criteria = db.Column(db.Float)
+    PrevAvRefValue = db.Column(db.Float)
+    Progress = db.Column(db.Float)
+    CriteriaType = db.Column(db.Float)
+    CriteriaVarType = db.Column(db.Float)
+    CriteriaPercentage = db.Column(db.Float)
+
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,24 +58,25 @@ def import_data():
 
             # Create a new record for each row and save it to the database
             for index, row in df.iterrows():
+                
                 csv_data = CSVData(
-                    iteration=row['Iteration'],
-                    cpu_time=row['CPUTime'],
-                    phys_time=row['PhysTime'],
-                    travels=row['Travels'],
-                    value=row['Value'],
-                    av_value=row['AvValue'],
-                    min_value=row['MinValue'],
-                    max_value=row['MaxValue'],
-                    delta=row['Delta'],
-                    criteria=row['Criteria'],
-                    prev_av_ref_value=row['PrevAvRefValue'],
-                    progress=row['Progress'],
-                    criteria_type=row['CriteriaType'],
-                    criteria_var_type=row['CriteriaVarType'],
-                    criteria_percentage=row['CriteriaPercentage']
+                    Iteration=row['Iteration'],
+                    CPUTime=round(row['CPUTime'], 6),
+                    PhysTime=round(row['PhysTime'], 6),
+                    Travels=round(row['Travels'], 6),
+                    Value=round(row['Value'],6),
+                    AvValue=round(row['AvValue']),
+                    MinValue=round(row['MinValue'], 6),
+                    MaxValue=round(row['MaxValue'], 6),
+                    Delta=round(row['Delta'], 6),
+                    Criteria=round(row['Criteria'], 6),
+                    PrevAvRefValue=round(row['PrevAvRefValue'], 6),
+                    Progress=round(row['Progress'], 6),
+                    CriteriaType=round(row['CriteriaType'], 6),
+                    CriteriaVarType=round(row['CriteriaVarType'], 6),
+                    CriteriaPercentage=row['CriteriaPercentage']
                 )
-                #db.session.add(csv_data)
+                db.session.add(csv_data)
             
             db.session.commit()
             
@@ -83,9 +90,17 @@ def import_data():
 @app.route('/', methods=['GET'])
 def index():
     if session.get('logged_in'):
-        return render_template('home.html')
+        selected_filters = request.args.getlist('filter')  # Collects selected checkboxes
+        session['selected_filters'] = selected_filters
+        all_data = CSVData.query.all()
+        filtered_data = []
+        for data in all_data:
+            data_dict = data.__dict__
+            filtered_record = {key: data_dict[key] for key in selected_filters}
+            filtered_data.append(filtered_record)
+        return render_template('LandingPage.html', records=filtered_data, selected_filters=selected_filters)
     else:
-        return render_template('index.html', message="Hello!")
+        return render_template('login.html', message="Hello!")
 
 
 @app.route('/register/', methods=['GET', 'POST'])
@@ -96,23 +111,61 @@ def register():
             db.session.commit()
             return redirect(url_for('login'))
         except:
-            return render_template('index.html', message="User Already Exists")
+            return render_template('login.html', message="User Already Exists")
     else:
-        return render_template('register.html')
+        return render_template('login.html')
 
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('login.html')
+        return render_template('register.html')
     else:
         u = request.form['username']
         p = request.form['password']
         data = User.query.filter_by(username=u, password=p).first()
         if data is not None:
             session['logged_in'] = True
-            return redirect(url_for('index'))
-        return render_template('index.html', message="Incorrect Details")
+            #return redirect(url_for('home'))
+            return render_template('LandingPage.html')
+        return render_template('login.html', message="Incorrect Details")
+
+
+@app.route('/export', methods=['GET'])
+def export_data():
+    try:
+        # Retrieve filters from the session, default to None if not set
+        selected_filters = session.get('selected_filters', [])
+
+        # If no filters are selected or it's None, select all columns
+        if not selected_filters:
+            selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
+
+        # Query all CSVData from the database
+        data = CSVData.query.all()
+
+        # Process and filter the data
+        filtered_data = []
+        for d in data:
+            data_dict = d.__dict__
+            filtered_record = {key: data_dict[key] for key in selected_filters}
+            filtered_data.append(filtered_record)
+
+        # Convert the filtered data to a pandas DataFrame
+        df = pd.DataFrame(filtered_data, columns=selected_filters)
+
+        # Convert the DataFrame to CSV format
+        csv_data = df.to_csv(index=False)
+
+        # Create a response with the CSV data
+        response = make_response(csv_data)
+        response.headers['Content-Disposition'] = 'attachment; filename=filtered_data.csv'
+        response.headers['Content-Type'] = 'text/csv'
+
+        return response
+    except Exception as e:
+        return f"Error exporting data: {str(e)}"
+
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -122,8 +175,11 @@ def logout():
 
 
 
+
 if(__name__ == '__main__'):
+    with app.app_context():
+        db.create_all()
     app.secret_key = "ThisIsNotASecret:p"
-   # db.create_all()
+    
     
     app.run()

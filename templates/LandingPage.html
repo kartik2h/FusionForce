@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Featherstill Inc.</title>
+    
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">	
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="dashboard-container">
+       <header class="dashboard-header">
+        <nav class="dashboard-nav">
+            <img src="{{ url_for('static', filename='images/icons/Logo.png') }}" alt="Featherstill Inc Logo" class="logo">
+            <div class="nav-items">
+                <label for="file-upload" class="nav-item">Upload <i class="fas fa-cloud-upload-alt"></i></label>
+                <input type="file" id="file-upload" name="file" accept=".csv,.xlsx" style="display:none;">
+                <a href="/export" class="nav-item">Download <i class="fas fa-download"></i></a>
+                <a href="/logout" class="nav-item">Logout <i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </nav>
+    </header>
+			
+			<div class="filter-section">
+			  <form action="/" method="get">
+				<select name="filter" id="filter-dropdown" class="filter-dropdown" multiple>
+				  <option value="Iteration">Iteration</option>
+				  <option value="CPUTime">CPU Time</option>
+				  <option value="PhysTime">Physical Time</option>
+				  <option value="Travels">Travels</option>
+				  <option value="Value">Value</option>
+				  <option value="AvValue">Average Value</option>
+				  <option value="MinValue">Min Value</option>
+				  <option value="MaxValue">Max Value</option>
+				  <option value="Delta">Delta</option>
+				  <option value="Criteria">Criteria</option>
+				  <option value="PrevAvRefValue">Previous Average Reference Value</option>
+				  <option value="Progress">Progress</option>
+				  <option value="CriteriaType">Criteria Type</option>
+				  <option value="CriteriaVarType">Criteria Variable Type</option>
+				  <option value="CriteriaPercentage">Criteria Percentage</option>
+				</select>
+				<button type="submit" class="filter-button">Apply Filters</button>
+			  </form>
+			</div>
+		
+			
+        
+		
+		<div class="view-data-section">
+        <input type="checkbox" id="toggle-data" style="display:none;">
+        <label for="toggle-data" class="view-data-button">Toggle Data View</label>
+		
+        <div class="data-table" id="data-table">
+           <table>
+				<thead>
+					<tr>
+						{% for header in selected_filters %}
+						<th>{{ header }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for record in records %}
+					<tr>
+						{% for header in selected_filters %}
+						<td>{{ record[header] }}</td>
+						{% endfor %}
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+        </div>
+		</div>
+	</div>
+    </div>
+	
+	
+</body>
+</html>
