@@ -8,6 +8,8 @@
     <!-- Fontawesome CDN Link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
     <div class="dashboard-container">
@@ -15,8 +17,10 @@
         <nav class="dashboard-nav">
             <img src="{{ url_for('static', filename='images/icons/Logo.png') }}" alt="Featherstill Inc Logo" class="logo">
             <div class="nav-items">
-                <label for="file-upload" class="nav-item">Upload <i class="fas fa-cloud-upload-alt"></i></label>
-                <input type="file" id="file-upload" name="file" accept=".csv,.xlsx" style="display:none;">
+                <a href="javascript:void(0)" id="upload-link" class="nav-item">Upload <i class="fas fa-cloud-upload-alt"></i></a>
+				<form id="file-upload-form" action="/import" method="post" enctype="multipart/form-data" style="display:none;">
+    				<input type="file" id="file-upload" name="file" accept=".csv,.xlsx" onchange="document.getElementById('file-upload-form').submit();">
+				</form>
                 <a href="/export" class="nav-item">Download <i class="fas fa-download"></i></a>
                 <a href="/logout" class="nav-item">Logout <i class="fas fa-sign-out-alt"></i></a>
             </div>
@@ -76,7 +80,84 @@
 		</div>
 	</div>
     </div>
+	<div id="chart-container">
+		<canvas id="chart-iteration"></canvas>
+		<canvas id="chart-cputime"></canvas>
+		<!-- Add more canvas elements for each chart you want to display -->
+	</div>
 	
+	<script>
+					document.addEventListener('DOMContentLoaded', function() {
+			// Ensure the DOM is fully loaded and then load charts
+			loadCharts();
+		});
+
+		function loadCharts() {
+			$.getJSON('/data_analysis', function(response) {
+				console.log("Data received:", response); // This will log your fetched data in the console.
+
+				// Parse your data here from the response
+				var labels = response.map(item => item.Iteration);
+				var cputimes = response.map(item => item.CPUTime);
+
+				// Now initialize your charts
+				try {
+					var ctxIteration = document.getElementById('chart-iteration').getContext('2d');
+					var chartIteration = new Chart(ctxIteration, {
+						type: 'line',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'Iterations',
+								data: labels,
+								borderColor: 'rgb(75, 192, 192)',
+								tension: 0.1
+							}]
+						},
+						options: {
+							scales: {
+								y: {
+									beginAtZero: true
+								}
+							}
+						}
+					});
+
+					var ctxCPUTime = document.getElementById('chart-cputime').getContext('2d');
+					var chartCPUTime = new Chart(ctxCPUTime, {
+						type: 'line',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'CPU Time',
+								data: cputimes,
+								borderColor: 'rgb(255, 99, 132)',
+								tension: 0.1
+							}]
+						},
+						options: {
+							scales: {
+								y: {
+									beginAtZero: true
+								}
+							}
+						}
+					});
+				} catch (e) {
+					console.error("Error initializing charts:", e);
+				}
+			}).fail(function(jqXHR, textStatus, errorThrown) {
+				console.error("Error fetching data:", textStatus, errorThrown);
+			});
+		}
+	</script>
+	<script>
+		document.getElementById('upload-link').addEventListener('click', function() {
+			document.getElementById('file-upload').click();
+		});
+	</script>
 	
 </body>
 </html>
+
+

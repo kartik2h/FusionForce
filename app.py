@@ -2,12 +2,11 @@ from flask import Flask, url_for, render_template, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd  # Correct way to import pandas
 import psycopg2
-from flask import Flask, url_for, render_template, request, redirect, session, make_response
-
+from flask import Flask, url_for, render_template, request, redirect, session, make_response, jsonify
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5433/csvfile'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qwerty@localhost:5432/Featherstill'
 
 
 db = SQLAlchemy(app)
@@ -86,6 +85,24 @@ def import_data():
 
     return "Invalid file format"
 
+
+@app.route('/data_analysis')
+def data_analysis():
+    data = CSVData.query.all()
+    
+    # Convert data to DataFrame
+    df = pd.DataFrame([vars(d) for d in data])
+    df.drop('_sa_instance_state', axis=1, inplace=True)  # Remove unnecessary column
+
+    # Example analysis - replace with your own analysis logic
+    analysis = {
+        'mean': df.mean().to_dict(),
+        'median': df.median().to_dict(),
+        'max': df.max().to_dict(),
+        'min': df.min().to_dict(),
+    }
+
+    return jsonify(analysis)
 
 @app.route('/', methods=['GET'])
 def index():

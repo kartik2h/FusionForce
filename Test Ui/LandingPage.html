@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fetherstill - A Battery Energy Technology Company</title>  <!-- <link rel="stylesheet" href="styles.css"> -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/landing_page_style.css')}}">	
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="header-pane">
+    <img src="logo.png" alt="Fetherstill Logo" class="logo"> <!-- Replace with your logo image -->
+    <h1 class="company-name">FETHERSTILL</h1>
+    <div class="header-content">
+      <nav>
+        <ul class="menu">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact US</a></li>
+          <li><a href="#">Resources</a></li>
+          <li><a href="#">More</a></li>
+          <li><a href="#" id="logout-button">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="buttons-container">
+		<form action="/import" method="post" enctype="multipart/form-data">
+			<input type="file" name="file" accept=".csv,.xlsx">
+			<button  id="upload-button" type="submit">Upload</button>
+	    </form>
+	    <a href="/export" >Download <i class="fas fa-download"></i></a>
+		 <a href="/logout" id="download-button">Logout <i class="fas fa-sign-out-alt"></i></a>
+	  </div>
+    </section>
+
+  <div class="centered-content">
+    <div class="filter-section">
+      <form action="/" method="get">
+        <select name="filter" id="filter-dropdown" class="filter-dropdown" multiple>
+          <option value="Iteration">Iteration</option>
+				  <option value="CPUTime">CPU Time</option>
+				  <option value="PhysTime">Physical Time</option>
+				  <option value="Travels">Travels</option>
+				  <option value="Value">Value</option>
+				  <option value="AvValue">Average Value</option>
+				  <option value="MinValue">Min Value</option>
+				  <option value="MaxValue">Max Value</option>
+				  <option value="Delta">Delta</option>
+				  <option value="Criteria">Criteria</option>
+				  <option value="PrevAvRefValue">Previous Average Reference Value</option>
+				  <option value="Progress">Progress</option>
+				  <option value="CriteriaType">Criteria Type</option>
+				  <option value="CriteriaVarType">Criteria Variable Type</option>
+				  <option value="CriteriaPercentage">Criteria Percentage</option>
+        </select>
+        <button type="submit" class="filter-button">Apply Filters</button>
+      </form>
+    </div>
+
+    <div class="data-table" id="data-table">
+      <table>
+        <thead>
+					<tr>
+						{% for header in selected_filters %}
+						<th>{{ header }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for record in records %}
+					<tr>
+						{% for header in selected_filters %}
+						<td>{{ record[header] }}</td>
+						{% endfor %}
+					</tr>
+					{% endfor %}
+				</tbody>
+      </table>
+    </div>
+  </div>
+  </main>
+  <footer class="footer-pane">
+    <p>Fetherstill Inc. | Windsor, Ontario N8X2P9 | fetherstill.com</p>
+  </footer>
+</body>
+</html>

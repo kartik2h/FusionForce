@@ -1,0 +1,133 @@
+/* styles.css */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-image: url('background.png'); /* Replace with the path to your actual background image */
+  background-size: cover;
+  color: white;
+}
+
+.header-pane {
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px; /* Adjust as needed */
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+}
+
+.company-name {
+  margin-left: 10px; /* Spacing between logo and company name */
+  font-size: 1.5em; /* Adjust size as needed */
+}
+
+nav .menu {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.menu li {
+  padding: 0 15px;
+}
+
+.menu li a {
+  text-decoration: none;
+  color: white;
+}
+
+#logout-button {
+  margin-left: auto; /* Pushes the logout button to the right */
+}
+
+.hero {
+  text-align: center;
+  padding: 150px 0; /* Adjust padding as needed */
+}
+
+.buttons-container {
+  margin-top: 50px; /* Space above the buttons */
+}
+
+button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: #007bff; /* Example button color, adjust as needed */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds a shadow for depth */
+  transition: all 0.3s ease; /* Smooth transition for button states */
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker shade for hover state */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Larger shadow for hover state */
+}
+
+.footer-pane {
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+}
+
+
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.filter-section {
+  margin-bottom: 20px; /* Add some space between the filter section and the table */
+}
+
+.filter-dropdown {
+  padding: 5px;
+  margin-right: 10px; /* Space between dropdown and button */
+}
+
+.filter-button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.data-table {
+  width: 100%; /* Adjust width as needed */
+  overflow-x: auto; /* Adds scroll if table is wider than screen */
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%; /* Table width */
+  margin: auto; /* Center table */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#chart-container canvas {
+    width: 400px;
+    height: 400px;
+}

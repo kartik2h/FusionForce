@@ -456,3 +456,8 @@ th {
 .nav-link i {
     margin-right: 8px; /* Space between icon and text */
 }
+
+#chart-container canvas {
+  width: 400px !important;
+  height: 400px !important;
+}
