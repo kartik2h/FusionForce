@@ -8,24 +8,30 @@
     <!-- Fontawesome CDN Link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body>
     <div class="dashboard-container">
-       <header class="dashboard-header">
-        <nav class="dashboard-nav">
-            <img src="{{ url_for('static', filename='images/icons/Logo.png') }}" alt="Featherstill Inc Logo" class="logo">
-            <div class="nav-items">
-                <a href="javascript:void(0)" id="upload-link" class="nav-item">Upload <i class="fas fa-cloud-upload-alt"></i></a>
+       
+
+	<header class="dashboard-header">
+		<nav class="dashboard-nav">
+			<img src="{{ url_for('static', filename='images/icons/Logo.png') }}" alt="Featherstill Inc Logo" class="logo">
+			<div class="nav-items">
+				<a href="javascript:void(0)" id="upload-link" class="nav-item"><i class="fas fa-cloud-upload-alt"></i> Upload</a>
 				<form id="file-upload-form" action="/import" method="post" enctype="multipart/form-data" style="display:none;">
     				<input type="file" id="file-upload" name="file" accept=".csv,.xlsx" onchange="document.getElementById('file-upload-form').submit();">
 				</form>
-                <a href="/export" class="nav-item">Download <i class="fas fa-download"></i></a>
-                <a href="/logout" class="nav-item">Logout <i class="fas fa-sign-out-alt"></i></a>
-            </div>
-        </nav>
-    </header>
+				<a href="/export" class="nav-item">
+					<i class="fas fa-download"></i> Download
+				</a>
+				<a href="/logout" class="nav-item">
+					<i class="fas fa-sign-out-alt"></i> Logout
+				</a>
+			</div>
+		</nav>
+	</header>
 			
 			<div class="filter-section">
 			  <form action="/" method="get">
@@ -81,71 +87,101 @@
 	</div>
     </div>
 	<div id="chart-container">
-		<canvas id="chart-iteration"></canvas>
-		<canvas id="chart-cputime"></canvas>
-		<!-- Add more canvas elements for each chart you want to display -->
+		<div class="chart">
+			<canvas id="bar-chart"></canvas>
+		</div>
+		<div class="chart">
+			<canvas id="pie-chart"></canvas>
+		</div>
 	</div>
 	
+	
 	<script>
-					document.addEventListener('DOMContentLoaded', function() {
-			// Ensure the DOM is fully loaded and then load charts
-			loadCharts();
+		document.addEventListener('DOMContentLoaded', function() {
+			loadBarChart();
+			loadPieChart();
 		});
 
-		function loadCharts() {
-			$.getJSON('/data_analysis', function(response) {
-				console.log("Data received:", response); // This will log your fetched data in the console.
+		function loadBarChart() {
+		$.getJSON('/data_analysis', function(data) {
+			// Since static data works, let's prepare the dynamic data in the same format.
+			var labels = [];
+			var meanValues = [];
 
-				// Parse your data here from the response
-				var labels = response.map(item => item.Iteration);
-				var cputimes = response.map(item => item.CPUTime);
-
-				// Now initialize your charts
-				try {
-					var ctxIteration = document.getElementById('chart-iteration').getContext('2d');
-					var chartIteration = new Chart(ctxIteration, {
-						type: 'line',
-						data: {
-							labels: labels,
-							datasets: [{
-								label: 'Iterations',
-								data: labels,
-								borderColor: 'rgb(75, 192, 192)',
-								tension: 0.1
-							}]
-						},
-						options: {
-							scales: {
-								y: {
-									beginAtZero: true
-								}
-							}
-						}
-					});
-
-					var ctxCPUTime = document.getElementById('chart-cputime').getContext('2d');
-					var chartCPUTime = new Chart(ctxCPUTime, {
-						type: 'line',
-						data: {
-							labels: labels,
-							datasets: [{
-								label: 'CPU Time',
-								data: cputimes,
-								borderColor: 'rgb(255, 99, 132)',
-								tension: 0.1
-							}]
-						},
-						options: {
-							scales: {
-								y: {
-									beginAtZero: true
-								}
-							}
-						}
-					});
-				} catch (e) {
-					console.error("Error initializing charts:", e);
+			// Assuming 'data' is the object with max, mean, median, min as properties.
+			for (var key in data) {
+				if (data.hasOwnProperty(key)) {
+					labels.push(key);
+					meanValues.push(data[key].CPUTime); // Just an example, choose an appropriate property.
 				}
+			}
+
+			// Now use the prepared labels and meanValues to create a chart
+			var ctx = document.getElementById('bar-chart').getContext('2d')
+			var dynamicChart = new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels, // ['max', 'mean', 'median', 'min']
+					datasets: [{
+						label: 'CPU Time',
+						data: meanValues, // [maxValue, meanValue, medianValue, minValue]
+						backgroundColor: 'rgba(54, 162, 235, 0.2)',
+						borderColor: 'rgba(54, 162, 235, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {
+							beginAtZero: true
+						}
+					}
+				}
+			});
+		}).fail(function(jqXHR, textStatus, errorThrown) {
+			console.error("Error fetching data:", textStatus, errorThrown);
+		});
+		}
+		function loadPieChart() {
+			$.getJSON('/data_analysis', function(data) {
+				var meanData = data.mean;
+				var chartLabels = Object.keys(meanData);
+				var chartValues = Object.values(meanData);
+
+				var backgroundColors = chartLabels.map(function(label, index) {
+					// This function will generate a color for each label
+					var red = Math.floor((255 / chartLabels.length) * (index + 1));
+					var green = Math.floor((255 / chartLabels.length) * (index + 1));
+					var blue = Math.floor((255 / chartLabels.length) * (index + 1));
+					return `rgba(${red}, ${green}, ${blue}, 0.6)`;
+				});
+
+				var ctxPie = document.getElementById('pie-chart').getContext('2d');
+				var pieChart = new Chart(ctxPie, {
+					type: 'pie',
+					data: {
+						labels: chartLabels,
+						datasets: [{
+							label: 'Mean Values',
+							data: chartValues,
+							backgroundColor: backgroundColors,
+                    		borderColor: 'rgba(255,255,255,1)',
+							borderWidth: 1
+						}]
+					},
+					options: {
+						responsive: true,
+						plugins: {
+							legend: {
+								position: 'top',
+							},
+							title: {
+								display: true,
+								text: 'Mean Values Distribution'
+							}
+						}
+					}
+				});
 			}).fail(function(jqXHR, textStatus, errorThrown) {
 				console.error("Error fetching data:", textStatus, errorThrown);
 			});
