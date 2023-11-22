@@ -6,7 +6,7 @@ from flask import Flask, url_for, render_template, request, redirect, session, m
 
 app = Flask(__name__, static_folder='templates/theme/assets')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5433/csvfile'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qwerty@localhost:5432/Featherstill'
 
 db = SQLAlchemy(app)
 
