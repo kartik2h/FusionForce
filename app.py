@@ -4,12 +4,12 @@ import pandas as pd  # Correct way to import pandas
 import psycopg2
 from flask import Flask, url_for, render_template, request, redirect, session, make_response, jsonify
 
+app = Flask(__name__, static_folder='templates/theme/assets')
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qwerty@localhost:5432/Featherstill'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5433/csvfile'
 
 db = SQLAlchemy(app)
+
 
 class CSVData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,7 +30,6 @@ class CSVData(db.Model):
     CriteriaPercentage = db.Column(db.Float)
 
 
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
@@ -39,6 +38,7 @@ class User(db.Model):
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
 
 @app.route('/import', methods=['POST'])
 def import_data():
@@ -57,13 +57,12 @@ def import_data():
 
             # Create a new record for each row and save it to the database
             for index, row in df.iterrows():
-                
                 csv_data = CSVData(
                     Iteration=row['Iteration'],
                     CPUTime=round(row['CPUTime'], 6),
                     PhysTime=round(row['PhysTime'], 6),
                     Travels=round(row['Travels'], 6),
-                    Value=round(row['Value'],6),
+                    Value=round(row['Value'], 6),
                     AvValue=round(row['AvValue']),
                     MinValue=round(row['MinValue'], 6),
                     MaxValue=round(row['MaxValue'], 6),
@@ -76,9 +75,9 @@ def import_data():
                     CriteriaPercentage=row['CriteriaPercentage']
                 )
                 db.session.add(csv_data)
-            
+
             db.session.commit()
-            
+
             return "Data imported and saved successfully!"
         except Exception as e:
             return f"Error importing and saving data: {str(e)}"
@@ -89,7 +88,7 @@ def import_data():
 @app.route('/data_analysis')
 def data_analysis():
     data = CSVData.query.all()
-    
+
     # Convert data to DataFrame
     df = pd.DataFrame([vars(d) for d in data])
     df.drop('_sa_instance_state', axis=1, inplace=True)  # Remove unnecessary column
@@ -104,6 +103,7 @@ def data_analysis():
 
     return jsonify(analysis)
 
+
 @app.route('/', methods=['GET'])
 def index():
     if session.get('logged_in'):
@@ -117,7 +117,7 @@ def index():
             filtered_data.append(filtered_record)
         return render_template('LandingPage.html', records=filtered_data, selected_filters=selected_filters)
     else:
-        return render_template('login.html', message="Hello!")
+        return render_template('theme/sign-in.html', message="Hello!")
 
 
 @app.route('/register/', methods=['GET', 'POST'])
@@ -126,26 +126,30 @@ def register():
         try:
             db.session.add(User(username=request.form['username'], password=request.form['password']))
             db.session.commit()
-            return redirect(url_for('login'))
+            return redirect(url_for('login'))  # Assuming this redirects to the 'sign-in.html' page
         except:
-            return render_template('login.html', message="User Already Exists")
+            return render_template('theme/sign-in.html', message="User Already Exists")
     else:
-        return render_template('login.html')
+        return render_template('theme/sign-up.html')
 
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    global data
     if request.method == 'GET':
-        return render_template('register.html')
+        return render_template('theme/sign-in.html')
     else:
         u = request.form['username']
         p = request.form['password']
-        data = User.query.filter_by(username=u, password=p).first()
+        try:
+            data = User.query.filter_by(username=u, password=p).first()
+        except Exception as e:
+            print("Error!!")
         if data is not None:
             session['logged_in'] = True
-            #return redirect(url_for('home'))
+            # return redirect(url_for('home'))
             return render_template('LandingPage.html')
-        return render_template('login.html', message="Incorrect Details")
+        return render_template('theme/sign-in.html', message="Incorrect Details")
 
 
 @app.route('/export', methods=['GET'])
@@ -156,7 +160,9 @@ def export_data():
 
         # If no filters are selected or it's None, select all columns
         if not selected_filters:
-            selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
+            selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue',
+                                'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType',
+                                'CriteriaVarType', 'CriteriaPercentage']
 
         # Query all CSVData from the database
         data = CSVData.query.all()
@@ -184,19 +190,15 @@ def export_data():
         return f"Error exporting data: {str(e)}"
 
 
-
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session['logged_in'] = False
     return redirect(url_for('index'))
 
 
-
-
-if(__name__ == '__main__'):
+if (__name__ == '__main__'):
     with app.app_context():
         db.create_all()
     app.secret_key = "ThisIsNotASecret:p"
-    
-    
+
     app.run()
