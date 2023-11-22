@@ -115,7 +115,7 @@ def index():
             data_dict = data.__dict__
             filtered_record = {key: data_dict[key] for key in selected_filters}
             filtered_data.append(filtered_record)
-        return render_template('LandingPage.html', records=filtered_data, selected_filters=selected_filters)
+        return render_template('theme/view_data.html', records=filtered_data, selected_filters=selected_filters)
     else:
         return render_template('theme/sign-in.html', message="Hello!")
 
@@ -148,9 +148,24 @@ def login():
         if data is not None:
             session['logged_in'] = True
             # return redirect(url_for('home'))
-            return render_template('edit_index.html')
+            return render_template('theme/edit_index.html')
         return render_template('theme/sign-in.html', message="Incorrect Details")
 
+@app.route('/view_data', methods=['GET'])
+def view_data():
+    return render_template('theme/view_data.html')
+
+@app.route('/edit_index', methods=['GET'])
+def landing_page():
+    return render_template('theme/edit_index.html')
+
+@app.route('/edited_analytics', methods=['GET'])
+def analytics():
+    return render_template('theme/edited_analytics.html')
+
+@app.route('/delete_user', methods=['GET'])
+def delete_user():
+    return render_template('theme/delete_user.html')
 
 @app.route('/export', methods=['GET'])
 def export_data():

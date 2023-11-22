@@ -65,7 +65,7 @@
           <div id="sidebar" class="sidebar sidebar-with-footer">
             <!-- Aplication Brand -->
             <div class="app-brand">
-              <a href="/edit_index.html" title="Feathersteel Inc.">
+              <a href="{{ url_for('landing_page') }}" title="Feathersteel Inc.">
                 <svg
                   class="brand-icon"
                   xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +79,7 @@
                   </g>
                 </svg>
 
-                <span class="brand-name text-truncate">Sleek Dashboard</span>
+                <span class="brand-name text-truncate">Feathersteel Inc.</span>
               </a>
             </div>
 
@@ -97,15 +97,27 @@
                   <ul class="collapse show" id="dashboard" data-parent="#sidebar-menu">
                     <div class="sub-menu">
                       <li class="">
-                        <a class="sidenav-item-link" href="edit_index.html">
+                        <a class="sidenav-item-link" href="{{ url_for('landing_page') }}">
                           <span class="nav-text">Upload or Download</span>
                         </a>
                       </li>
 
                       <li class="active">
-                        <a class="sidenav-item-link" href="edited_analytics.html">
+                        <a class="sidenav-item-link" href="{{ url_for('analytics') }}">
                           <span class="nav-text">Analytics</span>
                           <span class="badge badge-success">new</span>
+                        </a>
+                      </li>
+
+                      <li class="">
+                        <a class="sidenav-item-link" href="{{ url_for('view_data') }}">
+                          <span class="nav-text">View Data</span>
+                        </a>
+                      </li>
+					  
+					            <li class="">
+                        <a class="sidenav-item-link" href="{{ url_for('delete_user') }}">
+                          <span class="nav-text">Delete User</span>
                         </a>
                       </li>
                     </div>
