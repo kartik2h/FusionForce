@@ -148,7 +148,7 @@ def login():
         if data is not None:
             session['logged_in'] = True
             # return redirect(url_for('home'))
-            return render_template('theme/edit_index.html')
+            return redirect(url_for('view_data'))
         return render_template('theme/sign-in.html', message="Incorrect Details")
 
 @app.route('/view_data', methods=['GET'])
