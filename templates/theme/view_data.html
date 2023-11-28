@@ -201,32 +201,15 @@
 								</select>
 								<button type="submit" class="filter-button">Apply Filters</button>
 							  </form>
+                                <br>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dataModal">
+                                  View Data
+                                </button>
 							</div>
+
+
 							
-						<div class="view-data-section">
-							<input type="checkbox" id="toggle-data" style="display:none;">
-							<label for="toggle-data" class="view-data-button">Toggle Data View</label>
-								
-							<div class="data-table" id="data-table">
-							   <table>
-									<thead>
-										<tr>
-											{% for header in selected_filters %}
-											<th>{{ header }}</th>
-											{% endfor %}
-										</tr>
-									</thead>
-									<tbody>
-										{% for record in records %}
-										<tr>
-											{% for header in selected_filters %}
-											<td>{{ record[header] }}</td>
-											{% endfor %}
-										</tr>
-										{% endfor %}
-									</tbody>
-								</table>
-							</div>
+
 						</div>
 					</div>
 				</div>
@@ -308,6 +291,54 @@
     <script src="assets/js/sleek.js"></script>
   <link href="assets/options/optionswitch.css" rel="stylesheet">
 <script src="assets/options/optionswitcher.js"></script>
+  <!-- Modal Structure -->
+<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dataModalLabel">Data View</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Your table goes here -->
+
+          <table>
+            <thead>
+              <tr>
+                {% for header in selected_filters %}
+                <th>{{ header }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in records %}
+              <tr>
+                {% for header in selected_filters %}
+                <td>{{ record[header] }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<!-- Bootstrap JS and its dependencies -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
 </body>
 </html>
 
