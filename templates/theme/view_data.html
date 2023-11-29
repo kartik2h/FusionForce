@@ -9,11 +9,7 @@
     <!-- theme meta -->
     <meta name="theme-name" content="sleek" />
     
-    <title>View Data - Feathersteel Inc.</title>
-
-    <link href="{{ url_for('static', filename='css/sleek.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/nprogress.js') }}"></script>
-
+    <title>Ecommerce - Sleek Admin Dashboard Template</title>
     
     <!-- GOOGLE FONTS -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500|Poppins:400,500,600,700|Roboto:400,500" rel="stylesheet" />
@@ -21,23 +17,28 @@
     <link href="https://cdn.materialdesignicons.com/4.4.95/css/materialdesignicons.min.css" rel="stylesheet" />
   
     <!-- PLUGINS CSS STYLE -->
-    <link href="{{ url_for('static', filename='plugins/simplebar/simplebar.css') }}" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='plugins/nprogress/nprogress.css') }}" rel="stylesheet" />
+    <link href="assets/plugins/simplebar/simplebar.css" rel="stylesheet" />
+    <link href="assets/plugins/nprogress/nprogress.css" rel="stylesheet" />
   
     <!-- No Extra plugin used -->
-    <link href="{{ url_for('static', filename='plugins/jvectormap/jquery-jvectormap-2.0.3.css') }}" rel='stylesheet'>
-    <link href="{{ url_for('static', filename='plugins/daterangepicker/daterangepicker.css') }}" rel='stylesheet'>
+    <link href='assets/plugins/jvectormap/jquery-jvectormap-2.0.3.css' rel='stylesheet'>
+    <link href='assets/plugins/daterangepicker/daterangepicker.css' rel='stylesheet'>
     
     
     <link href='assets/plugins/toastr/toastr.min.css' rel='stylesheet'>
+    
+    
+    
+    
+    
+    
 
     <!-- SLEEK CSS -->
-    <link id="sleek-css" rel="stylesheet" href="{{ url_for('static', filename='css/sleek.css') }}" />
+    <link id="sleek-css" rel="stylesheet" href="assets/css/sleek.css" />
   
     <!-- FAVICON -->
-    <link href="{{ url_for('static', filename='images/favicon.png') }}" rel="shortcut icon" />
-    <link href="{{ url_for('static', filename='images/user/user.png') }}" rel="shortcut icon" />
-    <link href="{{ url_for('static', filename='images/Logo.png') }}" rel="shortcut icon" />
+    <link href="assets/img/favicon.png" rel="shortcut icon" />
+  
     <!--
       HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries
     -->
@@ -46,9 +47,8 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script src="{{ url_for('static', filename='plugins/nprogress/nprogress.js') }}"></script>
 	
-	  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">	
+
   </head>
 
   <body class="header-fixed sidebar-fixed sidebar-dark header-light" id="body">
@@ -141,26 +141,29 @@
           <!-- Header -->
           <header class="main-header " id="header">
             <nav class="navbar navbar-static-top navbar-expand-lg">
-              <!-- Sidebar toggle button -->
-              <button id="sidebar-toggler" class="sidebar-toggle">
-                <span class="sr-only">Toggle navigation</span>
-              </button>
-              <!-- search form -->
-              
-
-              <div class="navbar-right ">
-                <ul class="nav navbar-nav">
-                  
-                  
-                  <!-- User Account -->
-                  <li class="dropdown user-menu">
-                    <img src="assets/img/user/user.png" class="user-image" alt="User Image" />
-                     <span class="d-none d-lg-inline-block">Welcome!</span>
-                  </li>
-                </ul>
-              </div>
+                <!-- Sidebar toggle button -->
+                <button id="sidebar-toggler" class="sidebar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                </button>
+                <!-- search form -->
+    
+                <div class="navbar-right">
+                    <ul class="nav navbar-nav">
+                        <!-- User Account -->
+                        <li class="dropdown user-menu">
+                            <img src="assets/img/user/user.png" class="user-image" alt="User Image" />
+                            <span class="d-none d-lg-inline-block">Welcome!</span>
+                        </li>
+                        <!-- Log Out Button -->
+                        <li class="nav-item">
+                            <a href="{{ url_for('logout') }}" class="nav-link">
+                                <i class="mdi mdi-logout"></i> Log Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </nav>
-          </header>
+        </header>
 
           
           <!-- ====================================
@@ -179,7 +182,7 @@
 							<h2>Extract Data</h2>
 						</div>
 
-						<div class="card-body py-0" data-simplebar style="height: 437px;">
+						<div class="card-body" data-simplebar style="height: 437px;">
 							<div class="filter-section">
 							  <form action="/" method="get">
 								<select name="filter" id="filter-dropdown" class="filter-dropdown" multiple>
@@ -201,32 +204,15 @@
 								</select>
 								<button type="submit" class="filter-button">Apply Filters</button>
 							  </form>
+                                <br>
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dataModal">
+                                  View Data
+                                </button>
 							</div>
+
+
 							
-						<div class="view-data-section">
-							<input type="checkbox" id="toggle-data" style="display:none;">
-							<label for="toggle-data" class="view-data-button">Toggle Data View</label>
-								
-							<div class="data-table" id="data-table">
-							   <table>
-									<thead>
-										<tr>
-											{% for header in selected_filters %}
-											<th>{{ header }}</th>
-											{% endfor %}
-										</tr>
-									</thead>
-									<tbody>
-										{% for record in records %}
-										<tr>
-											{% for header in selected_filters %}
-											<td>{{ record[header] }}</td>
-											{% endfor %}
-										</tr>
-										{% endfor %}
-									</tbody>
-								</table>
-							</div>
+
 						</div>
 					</div>
 				</div>
@@ -308,6 +294,54 @@
     <script src="assets/js/sleek.js"></script>
   <link href="assets/options/optionswitch.css" rel="stylesheet">
 <script src="assets/options/optionswitcher.js"></script>
+  <!-- Modal Structure -->
+<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dataModalLabel">Data View</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Your table goes here -->
+
+          <table>
+            <thead>
+              <tr>
+                {% for header in selected_filters %}
+                <th>{{ header }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in records %}
+              <tr>
+                {% for header in selected_filters %}
+                <td>{{ record[header] }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<!-- Bootstrap JS and its dependencies -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
 </body>
 </html>
 

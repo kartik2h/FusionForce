@@ -156,6 +156,12 @@
                     <img src="assets/img/user/user.png" class="user-image" alt="User Image" />
                      <span class="d-none d-lg-inline-block">Welcome!</span>
                   </li>
+                  <!-- Log Out Button -->
+                  <li class="nav-item">
+                    <a href="{{ url_for('logout') }}" class="nav-link">
+                        <i class="mdi mdi-logout"></i> Log Out
+                    </a>
+                </li>
                 </ul>
               </div>
             </nav>
@@ -168,6 +174,13 @@
           <div class="content-wrapper">
             <div class="content">
 
+
+                <form action="/import" method="post" enctype="multipart/form-data" style="text-align: center;">
+                    <input type="file" name="file" accept=".csv,.xlsx" style="border: 2px solid #007bff; margin-right: 10px; padding: 5px;">
+                    <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
+                </form>
+
+                <a href="/export" style="display: inline-block; padding: 10px 20px; margin: 10px 0; text-align: center; text-decoration: none; color: white; background-color: #17a2b8; border-radius: 5px; cursor: pointer;">Download <i class="fas fa-download" style="margin-left: 5px;"></i></a>
 
 
 

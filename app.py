@@ -163,9 +163,25 @@ def landing_page():
 def analytics():
     return render_template('theme/edited_analytics.html')
 
+
+
 @app.route('/delete_user', methods=['GET'])
 def delete_user():
-    return render_template('theme/delete_user.html')
+    users = User.query.all()  # Fetch all users
+    return render_template('theme/delete_user.html', users=users)
+
+@app.route('/delete_selected_users', methods=['POST'])
+def delete_selected_users():
+    try:
+        user_ids = request.form.getlist('user_ids')  # Get list of selected user IDs
+        for user_id in user_ids:
+            user = User.query.get(int(user_id))
+            if user:
+                db.session.delete(user)
+        db.session.commit()
+        return redirect(url_for('delete_user', message="Users deleted successfully"))
+    except Exception as e:
+        return str(e)
 
 @app.route('/export', methods=['GET'])
 def export_data():
@@ -217,3 +233,5 @@ if (__name__ == '__main__'):
     app.secret_key = "ThisIsNotASecret:p"
 
     app.run()
+
+

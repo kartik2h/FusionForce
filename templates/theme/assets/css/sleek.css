@@ -4832,6 +4832,7 @@ input[type="button"].btn-block {
   flex: 1 1 auto;
   min-height: 1px;
   padding: 1.25rem;
+  width: 100%
 }
 
 .card-title {
@@ -19906,6 +19907,20 @@ html[dir="rtl"] #toast-container > .toast-success {
   background-position: left 15px center;
 }
 
+
+.filter-section {
+    width: 90%; /* or any other percentage or fixed width that fits the box */
+    margin: 0 auto; /* Centers the filter-section within .card-body */
+}
+
+.filter-dropdown {
+    width: 100%; /* Makes the select element take up the full width of .filter-section */
+}
+
+.filter-button {
+    width: 100%; /* Optional: Makes the button take up the full width of .filter-section */
+    margin-top: 10px; /* Adds space between the select element and the button */
+}
 
 
 /*# sourceMappingURL=sleek.css.map */
