@@ -172,22 +172,55 @@
           ===================================== -->
           <div class="content-wrapper">
             <div class="content">
-
-
-                <form action="/import" method="post" enctype="multipart/form-data" style="text-align: center;">
-                    <input type="file" name="file" accept=".csv,.xlsx" style="border: 2px solid #007bff; margin-right: 10px; padding: 5px;">
-                    <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
-                </form>
-
-
-
-
-
-		
-                  
-
-
-
+              <div class="row">
+                <div class="col-xl-4">
+                  <div class="card card-default">
+                    <div class="card-header justify-content-between">
+                        <h2>Record Count</h2>
+                    </div>
+                    <div class="card-body" style="text-align: center;">
+                        <p style="font-size: 36px; color: black; font-weight: bold; margin-top: 20px;">
+                      <div>
+                        <p>Number of Records in Module 1: <strong>{{ module1_records }}</strong></p>
+                        <p>Number of Records in Module 2: <strong>{{ module2_records }}</strong></p>
+                        <p>Number of Records in Module 3: <strong>{{ module3_records }}</strong></p>
+                        <p>Number of Records in Module 4: <strong>{{ module4_records }}</strong></p>
+                      </div>
+                      </p>
+                      </div>
+                      </div>
+                </div>
+                <div class="col-xl-4">
+                  <div class="card card-default" id="analytics-device" analytics-data-height>
+                    <div class="card-header justify-content-between">
+                      <h2>Upload CSV File</h2>
+                    </div>
+				            <div class="card-body">
+                  <form action="/import" method="post" enctype="multipart/form-data" style="text-align: center;">
+                      <input type="file" name="file" accept=".csv,.xlsx" style="border: 2px solid #007bff; margin-right: 10px; padding: 5px;">
+              
+                      <div style="margin: 10px 0;">
+                          <label><input type="checkbox" name="modules" value="module1"> Module 1</label><br>
+                          <label><input type="checkbox" name="modules" value="module2"> Module 2</label><br>
+                          <label><input type="checkbox" name="modules" value="module3"> Module 3</label><br>
+                          <label><input type="checkbox" name="modules" value="module4"> Module 4</label>
+                      </div>
+              
+                      <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
+                  </form>
+                </br>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+              </div>
+              </div>
+              </div>
+              </div>
+              
       </div> <!-- End Content -->
     </div> <!-- End Content Wrapper -->
     

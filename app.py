@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template, request, redirect, session
+from flask import Flask, url_for, render_template, request, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import pandas as pd  # Correct way to import pandas
 import psycopg2
@@ -31,6 +31,77 @@ class CSVData(db.Model):
     CriteriaVarType = db.Column(db.Float)
     CriteriaPercentage = db.Column(db.Float)
 
+class Module1(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Iteration = db.Column(db.Float)
+    CPUTime = db.Column(db.Float)
+    PhysTime = db.Column(db.Float)
+    Travels = db.Column(db.Float)
+    Value = db.Column(db.Float)
+    AvValue = db.Column(db.Float)
+    MinValue = db.Column(db.Float)
+    MaxValue = db.Column(db.Float)
+    Delta = db.Column(db.Float)
+    Criteria = db.Column(db.Float)
+    PrevAvRefValue = db.Column(db.Float)
+    Progress = db.Column(db.Float)
+    CriteriaType = db.Column(db.Float)
+    CriteriaVarType = db.Column(db.Float)
+    CriteriaPercentage = db.Column(db.Float)
+
+class Module2(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Iteration = db.Column(db.Float)
+    CPUTime = db.Column(db.Float)
+    PhysTime = db.Column(db.Float)
+    Travels = db.Column(db.Float)
+    Value = db.Column(db.Float)
+    AvValue = db.Column(db.Float)
+    MinValue = db.Column(db.Float)
+    MaxValue = db.Column(db.Float)
+    Delta = db.Column(db.Float)
+    Criteria = db.Column(db.Float)
+    PrevAvRefValue = db.Column(db.Float)
+    Progress = db.Column(db.Float)
+    CriteriaType = db.Column(db.Float)
+    CriteriaVarType = db.Column(db.Float)
+    CriteriaPercentage = db.Column(db.Float)
+
+class Module3(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Iteration = db.Column(db.Float)
+    CPUTime = db.Column(db.Float)
+    PhysTime = db.Column(db.Float)
+    Travels = db.Column(db.Float)
+    Value = db.Column(db.Float)
+    AvValue = db.Column(db.Float)
+    MinValue = db.Column(db.Float)
+    MaxValue = db.Column(db.Float)
+    Delta = db.Column(db.Float)
+    Criteria = db.Column(db.Float)
+    PrevAvRefValue = db.Column(db.Float)
+    Progress = db.Column(db.Float)
+    CriteriaType = db.Column(db.Float)
+    CriteriaVarType = db.Column(db.Float)
+    CriteriaPercentage = db.Column(db.Float)
+
+class Module4(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Iteration = db.Column(db.Float)
+    CPUTime = db.Column(db.Float)
+    PhysTime = db.Column(db.Float)
+    Travels = db.Column(db.Float)
+    Value = db.Column(db.Float)
+    AvValue = db.Column(db.Float)
+    MinValue = db.Column(db.Float)
+    MaxValue = db.Column(db.Float)
+    Delta = db.Column(db.Float)
+    Criteria = db.Column(db.Float)
+    PrevAvRefValue = db.Column(db.Float)
+    Progress = db.Column(db.Float)
+    CriteriaType = db.Column(db.Float)
+    CriteriaVarType = db.Column(db.Float)
+    CriteriaPercentage = db.Column(db.Float)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,20 +116,20 @@ class User(db.Model):
 @app.route('/import', methods=['POST'])
 def import_data():
     if 'file' not in request.files:
-        return redirect(request.url)
+        return "No file part", 400
 
     file = request.files['file']
+    selected_modules = request.form.getlist('modules')
 
     if file.filename == '':
-        return redirect(request.url)
+        return "No selected file", 400
 
     if file:
         try:
-            # Read the CSV file using pandas
             df = pd.read_csv(file)
 
-            # Create a new record for each row and save it to the database
             for index, row in df.iterrows():
+                # Create a record for CSVData
                 csv_data = CSVData(
                     Iteration=row['Iteration'],
                     CPUTime=round(row['CPUTime'], 6),
@@ -78,13 +149,29 @@ def import_data():
                 )
                 db.session.add(csv_data)
 
-            db.session.commit()
+                # Add data to selected modules
+                for module in selected_modules:
+                    module_class = get_module_class(module)
+                    if module_class:
+                        module_record = module_class(**row.to_dict())
+                        db.session.add(module_record)
 
-            return "Data imported and saved successfully!"
+            db.session.commit()
+            return redirect(url_for('landing_page'))
         except Exception as e:
             return f"Error importing and saving data: {str(e)}"
 
-    return "Invalid file format"
+    flash("Invalid file format", "error")
+    return redirect(url_for('landing_page'))
+
+def get_module_class(module_name):
+    module_mapping = {
+        'module1': Module1,
+        'module2': Module2,
+        'module3': Module3,
+        'module4': Module4,
+    }
+    return module_mapping.get(module_name)
 
 
 @app.route('/data_analysis')
@@ -112,7 +199,7 @@ def index():
         return render_template('theme/edited_analytics.html')
     else:
         return redirect(url_for('home_page'))
-        #return redirect(url_for('login'))  # Redirect to login if not logged in
+    
 
 @app.route('/home_page', methods=['GET', 'POST'])
 def home_page():
@@ -188,7 +275,16 @@ def view_data():
 
 @app.route('/edit_index', methods=['GET'])
 def landing_page():
-    return render_template('theme/edit_index.html')
+    module1_records = Module1.query.count()
+    module2_records = Module2.query.count()
+    module3_records = Module3.query.count()
+    module4_records = Module4.query.count()
+
+    return render_template('theme/edit_index.html', 
+                           module1_records=module1_records,
+                           module2_records=module2_records,
+                           module3_records=module3_records,
+                           module4_records=module4_records)
 
 @app.route('/edited_analytics', methods=['GET'])
 def analytics():
