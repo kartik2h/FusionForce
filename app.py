@@ -108,42 +108,14 @@ def data_analysis():
 @app.route('/', methods=['GET'])
 def index():
     if session.get('logged_in'):
-        selected_filters = request.args.getlist('filter')
-
-        # Default to displaying all fields if no checkboxes are selected
-        if not selected_filters:
-            selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
-
-        # Start with all records
-        all_data = CSVData.query
-        min_value = request.args.get('minValue', type=float)
-        max_value = request.args.get('maxValue', type=float)
-
-        # Apply dynamic range filters based on selected filters
-        filter_conditions = []
-        for filter_col in selected_filters:
-            if min_value is not None and max_value is not None:
-                filter_conditions.append(getattr(CSVData, filter_col).between(min_value, max_value))
-
-        if filter_conditions:
-            all_data = all_data.filter(and_(*filter_conditions))
-
-        # Execute the query and retrieve data
-        all_data = all_data.all()
-        print(all_data)
-        # Filter and format the data based on selected columns
-        filtered_data = []
-        for data in all_data:
-            data_dict = data.__dict__
-            filtered_record = {key: data_dict[key] for key in selected_filters if key in data_dict}
-            filtered_data.append(filtered_record)
-
-        session['selected_filters'] = selected_filters
-        return render_template('theme/view_data.html', records=filtered_data, selected_filters=selected_filters)
+        return render_template('theme/edited_analytics.html')
     else:
-        return redirect(url_for('login'))  # Redirect to login if not logged in
+        return redirect(url_for('home_page'))
+        #return redirect(url_for('login'))  # Redirect to login if not logged in
 
-
+@app.route('/home_page', methods=['GET', 'POST'])
+def home_page():
+    return render_template('theme/home_page.html')
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -173,14 +145,45 @@ def login():
         if data is not None:
             session['logged_in'] = True
             # return redirect(url_for('home'))
-            return redirect(url_for('view_data'))
+            return redirect(url_for('analytics'))
         return render_template('theme/sign-in.html', message="Incorrect Details")
     
 
 
 @app.route('/view_data', methods=['GET'])
 def view_data():
-    return render_template('theme/view_data.html')
+    selected_filters = request.args.getlist('filter')
+
+    # Default to displaying all fields if no checkboxes are selected
+    if not selected_filters:
+        selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
+
+    # Start with all records
+    all_data = CSVData.query
+    min_value = request.args.get('minValue', type=float)
+    max_value = request.args.get('maxValue', type=float)
+
+    # Apply dynamic range filters based on selected filters
+    filter_conditions = []
+    for filter_col in selected_filters:
+        if min_value is not None and max_value is not None:
+            filter_conditions.append(getattr(CSVData, filter_col).between(min_value, max_value))
+
+    if filter_conditions:
+        all_data = all_data.filter(and_(*filter_conditions))
+
+    # Execute the query and retrieve data
+    all_data = all_data.all()
+    print(all_data)
+    # Filter and format the data based on selected columns
+    filtered_data = []
+    for data in all_data:
+        data_dict = data.__dict__
+        filtered_record = {key: data_dict[key] for key in selected_filters if key in data_dict}
+        filtered_data.append(filtered_record)
+
+    session['selected_filters'] = selected_filters
+    return render_template('theme/view_data.html', records=filtered_data, selected_filters=selected_filters)
 
 @app.route('/edit_index', methods=['GET'])
 def landing_page():
