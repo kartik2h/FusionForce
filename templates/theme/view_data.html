@@ -115,8 +115,8 @@
                       </li>
 					  
 					  <li class="">
-                        <a class="sidenav-item-link" href="{{ url_for('delete_user') }}">
-                          <span class="nav-text">Delete User</span>
+                        <a class="sidenav-item-link" href="{{ url_for('manage_users') }}">
+                          <span class="nav-text">Manage Users</span>
                         </a>
                       </li>
                     </div>
@@ -169,64 +169,64 @@
           <!-- ====================================
           ——— CONTENT WRAPPER
           ===================================== -->
+          
           <div class="content-wrapper">
             <div class="content">
-
-				<div class="row">
-					<div class="col-xl-4">
-					</div>
-					<div class=" col-xl-4 ">
-					<!-- Page Views  -->
-					<div class="card card-default table-borderless" id="page-views">
-						<div class="card-header justify-content-between">
-							<h2>Extract Data</h2>
-						</div>
-
-						<div class="card-body" data-simplebar style="height: 437px;">
-							<div class="filter-section">
-							  <form action="/" method="get">
-								<select name="filter" id="filter-dropdown" class="filter-dropdown" multiple>
-								  <option value="Iteration">Iteration</option>
-								  <option value="CPUTime">CPU Time</option>
-								  <option value="PhysTime">Physical Time</option>
-								  <option value="Travels">Travels</option>
-								  <option value="Value">Value</option>
-								  <option value="AvValue">Average Value</option>
-								  <option value="MinValue">Min Value</option>
-								  <option value="MaxValue">Max Value</option>
-								  <option value="Delta">Delta</option>
-								  <option value="Criteria">Criteria</option>
-								  <option value="PrevAvRefValue">Previous Average Reference Value</option>
-								  <option value="Progress">Progress</option>
-								  <option value="CriteriaType">Criteria Type</option>
-								  <option value="CriteriaVarType">Criteria Variable Type</option>
-								  <option value="CriteriaPercentage">Criteria Percentage</option>
-								</select>
-								<button type="submit" class="filter-button">Apply Filters</button>
-							  </form>
-                                <br>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dataModal">
-                                  View Data
-                                </button>
-							</div>
-
-
-							
-
-						</div>
-					</div>
-				</div>
-				</div>
-
-
-
-		
-                  
-
-
-
-      </div> <!-- End Content -->
-    </div> <!-- End Content Wrapper -->
+                <div class="row">
+                    <div class="col-xl-4">
+                        <!-- Space for additional content -->
+                    </div>
+                    <div class="col-xl-4">
+                        <!-- Page Views -->
+                        <div class="card card-default table-borderless" id="page-views">
+                            <div class="card-header justify-content-between">
+                                <h2>Extract Data</h2>
+                            </div>
+                            <div class="card-body" data-simplebar style="height: 600px;">
+                                <div class="filter-section">
+                                  <form action="/" method="get">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input type="checkbox" name="filter" value="Iteration" id="Iteration"> <label for="Iteration">Iteration</label><br>
+                                                <input type="checkbox" name="filter" value="CPUTime" id="CPUTime"> <label for="CPUTime">CPU Time</label><br>
+                                                <input type="checkbox" name="filter" value="PhysTime" id="PhysTime"> <label for="PhysTime">Physical Time</label><br>
+                                                <input type="checkbox" name="filter" value="Travels" id="Travels"> <label for="Travels">Travels</label><br>
+                                                <input type="checkbox" name="filter" value="Value" id="Value"> <label for="Value">Value</label><br>
+                                                <input type="checkbox" name="filter" value="PrevAvRefValue" id="PrevAvRefValue"> <label for="PrevAvRefValue">Prev Avg Ref Value</label><br>
+                                                <input type="checkbox" name="filter" value="Progress" id="Progress"> <label for="Progress">Progress</label><br>
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="checkbox" name="filter" value="AvValue" id="AvValue"> <label for="AvValue">Average Value</label><br>
+                                                <input type="checkbox" name="filter" value="MinValue" id="MinValue"> <label for="MinValue">Min Value</label><br>
+                                                <input type="checkbox" name="filter" value="MaxValue" id="MaxValue"> <label for="MaxValue">Max Value</label><br>
+                                                <input type="checkbox" name="filter" value="Delta" id="Delta"> <label for="Delta">Delta</label><br>
+                                                <input type="checkbox" name="filter" value="Criteria" id="Criteria"> <label for="Criteria">Criteria</label><br>
+                                                <input type="checkbox" name="filter" value="CriteriaType" id="CriteriaType"> <label for="CriteriaType">Criteria Type</label><br>
+                                                <input type="checkbox" name="filter" value="CriteriaVarType" id="CriteriaVarType"> <label for="CriteriaVarType">Criteria Var Type</label><br>
+                                                <input type="checkbox" name="filter" value="CriteriaPercentage" id="CriteriaPercentage"> <label for="CriteriaPercentage">Criteria Percentage</label><br>
+                                                <!-- More checkboxes here -->
+                                            </div>
+                                        </div>
+                                        <div class="range-filter">
+                                          <label for="valueRange">Value Range:</label><br>
+                                          <input type="number" name="minValue" id="minValue" placeholder="Min Value">
+                                          <input type="number" name="maxValue" id="maxValue" placeholder="Max Value">
+                                      </div>
+                                        <br>
+                                        <button type="submit" class="filter-button">Apply Filters</button>
+                                    </form>
+                                    <br>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dataModal">
+                                      View Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End Content -->
+        </div> <!-- End Content Wrapper -->
+        
     
     
     <!-- Footer -->
@@ -294,20 +294,21 @@
     <script src="assets/js/sleek.js"></script>
   <link href="assets/options/optionswitch.css" rel="stylesheet">
 <script src="assets/options/optionswitcher.js"></script>
-  <!-- Modal Structure -->
-<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="dataModalLabel">Data View</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Your table goes here -->
 
-          <table>
+
+
+  <!-- Modal Structure -->
+  <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dataModalLabel">Data View</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+          <table class="table">
             <thead>
               <tr>
                 {% for header in selected_filters %}
@@ -325,14 +326,13 @@
               {% endfor %}
             </tbody>
           </table>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
   <!-- Bootstrap CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 

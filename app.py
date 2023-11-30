@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 import pandas as pd  # Correct way to import pandas
 import psycopg2
 from flask import Flask, url_for, render_template, request, redirect, session, make_response, jsonify
+from sqlalchemy import and_
 
 app = Flask(__name__, static_folder='templates/theme/assets')
 
@@ -107,17 +108,41 @@ def data_analysis():
 @app.route('/', methods=['GET'])
 def index():
     if session.get('logged_in'):
-        selected_filters = request.args.getlist('filter')  # Collects selected checkboxes
-        session['selected_filters'] = selected_filters
-        all_data = CSVData.query.all()
+        selected_filters = request.args.getlist('filter')
+
+        # Default to displaying all fields if no checkboxes are selected
+        if not selected_filters:
+            selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
+
+        # Start with all records
+        all_data = CSVData.query
+        min_value = request.args.get('minValue', type=float)
+        max_value = request.args.get('maxValue', type=float)
+
+        # Apply dynamic range filters based on selected filters
+        filter_conditions = []
+        for filter_col in selected_filters:
+            if min_value is not None and max_value is not None:
+                filter_conditions.append(getattr(CSVData, filter_col).between(min_value, max_value))
+
+        if filter_conditions:
+            all_data = all_data.filter(and_(*filter_conditions))
+
+        # Execute the query and retrieve data
+        all_data = all_data.all()
+        print(all_data)
+        # Filter and format the data based on selected columns
         filtered_data = []
         for data in all_data:
             data_dict = data.__dict__
-            filtered_record = {key: data_dict[key] for key in selected_filters}
+            filtered_record = {key: data_dict[key] for key in selected_filters if key in data_dict}
             filtered_data.append(filtered_record)
+
+        session['selected_filters'] = selected_filters
         return render_template('theme/view_data.html', records=filtered_data, selected_filters=selected_filters)
     else:
-        return render_template('theme/sign-in.html', message="Hello!")
+        return redirect(url_for('login'))  # Redirect to login if not logged in
+
 
 
 @app.route('/register/', methods=['GET', 'POST'])
@@ -126,11 +151,11 @@ def register():
         try:
             db.session.add(User(username=request.form['username'], password=request.form['password']))
             db.session.commit()
-            return redirect(url_for('login'))  # Assuming this redirects to the 'sign-in.html' page
+            return redirect(url_for('manage_users'))  # Assuming this redirects to the 'sign-in.html' page
         except:
-            return render_template('theme/sign-in.html', message="User Already Exists")
+            return render_template('theme/manage_users.html', message="User Already Exists")
     else:
-        return render_template('theme/sign-up.html')
+        return render_template('theme/manage_users.html')
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -150,6 +175,8 @@ def login():
             # return redirect(url_for('home'))
             return redirect(url_for('view_data'))
         return render_template('theme/sign-in.html', message="Incorrect Details")
+    
+
 
 @app.route('/view_data', methods=['GET'])
 def view_data():
@@ -165,10 +192,11 @@ def analytics():
 
 
 
-@app.route('/delete_user', methods=['GET'])
-def delete_user():
+@app.route('/manage_users', methods=['GET'])
+def manage_users():
     users = User.query.all()  # Fetch all users
-    return render_template('theme/delete_user.html', users=users)
+    users_count = len(users)  # Get the count of users
+    return render_template('theme/manage_users.html', users=users, users_count=users_count)
 
 @app.route('/delete_selected_users', methods=['POST'])
 def delete_selected_users():
