@@ -8,6 +8,7 @@ from sqlalchemy import and_
 app = Flask(__name__, static_folder='templates/theme/assets')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:qwerty@localhost:5432/Featherstill'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5433/csvfile'
 
 db = SQLAlchemy(app)
 
