@@ -220,7 +220,6 @@ def register():
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    global data
     if request.method == 'GET':
         return render_template('theme/sign-in.html')
     else:
@@ -232,7 +231,7 @@ def login():
             print("Error!!")
         if data is not None:
             session['logged_in'] = True
-            # return redirect(url_for('home'))
+            session['username'] = data.username  # Store the username in the session
             return redirect(url_for('analytics'))
         return render_template('theme/sign-in.html', message="Incorrect Details")
     
@@ -294,9 +293,19 @@ def analytics():
 
 @app.route('/manage_users', methods=['GET'])
 def manage_users():
-    users = User.query.all()  # Fetch all users
-    users_count = len(users)  # Get the count of users
-    return render_template('theme/manage_users.html', users=users, users_count=users_count)
+    # Check if a user is logged in and if their username is 'admin'
+    if session.get('logged_in') and session.get('username') == 'admin':
+        users = User.query.all()  # Fetch all users
+        users_count = len(users)  # Get the count of users
+        return render_template('theme/manage_users.html', users=users, users_count=users_count)
+    else:
+        # Redirect to home page or show an error message
+        flash("You do not have permission to access this page.", "error")
+        return redirect(url_for('restricted'))  # or your desired route
+    
+@app.route('/restricted', methods=['GET'])
+def restricted():
+    return render_template('theme/restrict.html')
 
 @app.route('/delete_selected_users', methods=['POST'])
 def delete_selected_users():
