@@ -112,6 +112,13 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+class Check_Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True)
+    
+    def __init__(self, username):
+        self.username = username
+
 # Outside the import_data function
 def update_record(record, row_data):
     for key, value in row_data.items():
@@ -156,33 +163,33 @@ def import_data():
             df = pd.read_csv(file)
 
             for index, row in df.iterrows():
-                # Check for existing record in CSVData
-                existing_csv_data = CSVData.query.filter_by(Iteration=row['Iteration']).first()
+                # Create a record for CSVData
+                csv_data = CSVData(
+                    Iteration=row['Iteration'],
+                    CPUTime=round(row['CPUTime'], 6),
+                    PhysTime=round(row['PhysTime'], 6),
+                    Travels=round(row['Travels'], 6),
+                    Value=round(row['Value'], 6),
+                    AvValue=round(row['AvValue']),
+                    MinValue=round(row['MinValue'], 6),
+                    MaxValue=round(row['MaxValue'], 6),
+                    Delta=round(row['Delta'], 6),
+                    Criteria=round(row['Criteria'], 6),
+                    PrevAvRefValue=round(row['PrevAvRefValue'], 6),
+                    Progress=round(row['Progress'], 6),
+                    CriteriaType=round(row['CriteriaType'], 6),
+                    CriteriaVarType=round(row['CriteriaVarType'], 6),
+                    CriteriaPercentage=row['CriteriaPercentage']
+                )
+                db.session.add(csv_data)
 
-                if existing_csv_data:
-                    # Update existing record
-                    update_record(existing_csv_data, row)
-                else:
-                    # Create a new record for CSVData
-                    csv_data = create_csv_data(row)
-                    db.session.add(csv_data)
-
-                # Process modules
+                # Add data to selected modules
                 for module in selected_modules:
                     module_class = get_module_class(module)
                     if module_class:
-                        # Check for existing record in the module
-                        existing_module_data = module_class.query.filter_by(Iteration=row['Iteration']).first()
+                        module_record = module_class(**row.to_dict())
+                        db.session.add(module_record)
 
-                        if existing_module_data:
-                            # Update existing module record
-                            update_record(existing_module_data, row)
-                        else:
-                            # Create a new module record
-                            module_record = module_class(**row.to_dict())
-                            db.session.add(module_record)
-
-            flash("Upload successful!", "success")
             db.session.commit()
             return redirect(url_for('landing_page'))
         except Exception as e:
@@ -235,14 +242,25 @@ def home_page():
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        is_admin = 'admin' in request.form  # Check if the admin checkbox was ticked
+
         try:
-            db.session.add(User(username=request.form['username'], password=request.form['password']))
+            new_user = User(username=username, password=password)
+            db.session.add(new_user)
+
+            # Add to Check_Admin table if is_admin is True
+            if is_admin:
+                db.session.add(Check_Admin(username=username))
+
             db.session.commit()
-            return redirect(url_for('manage_users'))  # Assuming this redirects to the 'sign-in.html' page
-        except:
-            return render_template('theme/manage_users.html', message="User Already Exists")
+            return redirect(url_for('manage_users'))  # Redirect to manage users page
+        except Exception as e:
+            print(e)  # For debugging purposes
+            return redirect(url_for('manage_users'))
     else:
-        return render_template('theme/manage_users.html')
+        return redirect(url_for('manage_users'))
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -329,24 +347,6 @@ def landing_page():
 def analytics():
     return render_template('theme/edited_analytics.html')
 
-
-
-@app.route('/manage_users', methods=['GET'])
-def manage_users():
-    # Check if a user is logged in and if their username is 'admin'
-    if session.get('logged_in') and session.get('username') == 'admin':
-        users = User.query.all()  # Fetch all users
-        users_count = len(users)  # Get the count of users
-        return render_template('theme/manage_users.html', users=users, users_count=users_count)
-    else:
-        # Redirect to home page or show an error message
-        flash("You do not have permission to access this page.", "error")
-        return redirect(url_for('restricted'))  # or your desired route
-    
-@app.route('/restricted', methods=['GET'])
-def restricted():
-    return render_template('theme/restrict.html')
-
 @app.route('/delete_selected_users', methods=['POST'])
 def delete_selected_users():
     try:
@@ -356,9 +356,33 @@ def delete_selected_users():
             if user:
                 db.session.delete(user)
         db.session.commit()
-        return redirect(url_for('delete_user', message="Users deleted successfully"))
+        return redirect(url_for('manage_users', message="Users deleted successfully"))
     except Exception as e:
         return str(e)
+
+@app.route('/manage_users', methods=['GET'])
+def manage_users():
+    # Check if a user is logged in
+    if session.get('logged_in'):
+        current_user_username = session.get('username')
+        admin_user = Check_Admin.query.filter_by(username=current_user_username).first()
+
+        if admin_user:
+            # The user is an admin
+            users = User.query.all()  # Fetch all users
+            users_count = len(users)  # Get the count of users
+            return render_template('theme/manage_users.html', users=users, users_count=users_count)
+        else:
+            # The user is not an admin
+            flash("You do not have permission to access this page.", "error")
+            return redirect(url_for('restricted'))  # Redirect to a restricted access page
+
+    flash("Please log in to access this page.", "error")
+    return redirect(url_for('login_page'))  # Redirect to login page
+    
+@app.route('/restricted', methods=['GET'])
+def restricted():
+    return render_template('theme/restrict.html')
 
 @app.route('/export', methods=['GET'])
 def export_data():
