@@ -112,7 +112,34 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+# Outside the import_data function
+def update_record(record, row_data):
+    for key, value in row_data.items():
+        if hasattr(record, key):
+            setattr(record, key, round(value, 6) if isinstance(value, float) else value)
+        flash("Upload successful!", "success")
+        db.session.commit()
 
+
+
+def create_csv_data(row):
+    return CSVData(
+        Iteration=row['Iteration'],
+        CPUTime=round(row['CPUTime'], 6),
+        PhysTime=round(row['PhysTime'], 6),
+        Travels=round(row['Travels'], 6),
+        Value=round(row['Value'], 6),
+        AvValue=round(row['AvValue']),
+        MinValue=round(row['MinValue'], 6),
+        MaxValue=round(row['MaxValue'], 6),
+        Delta=round(row['Delta'], 6),
+        Criteria=round(row['Criteria'], 6),
+        PrevAvRefValue=round(row['PrevAvRefValue'], 6),
+        Progress=round(row['Progress'], 6),
+        CriteriaType=round(row['CriteriaType'], 6),
+        CriteriaVarType=round(row['CriteriaVarType'], 6),
+        CriteriaPercentage=row['CriteriaPercentage']
+    )
 @app.route('/import', methods=['POST'])
 def import_data():
     if 'file' not in request.files:
@@ -129,33 +156,33 @@ def import_data():
             df = pd.read_csv(file)
 
             for index, row in df.iterrows():
-                # Create a record for CSVData
-                csv_data = CSVData(
-                    Iteration=row['Iteration'],
-                    CPUTime=round(row['CPUTime'], 6),
-                    PhysTime=round(row['PhysTime'], 6),
-                    Travels=round(row['Travels'], 6),
-                    Value=round(row['Value'], 6),
-                    AvValue=round(row['AvValue']),
-                    MinValue=round(row['MinValue'], 6),
-                    MaxValue=round(row['MaxValue'], 6),
-                    Delta=round(row['Delta'], 6),
-                    Criteria=round(row['Criteria'], 6),
-                    PrevAvRefValue=round(row['PrevAvRefValue'], 6),
-                    Progress=round(row['Progress'], 6),
-                    CriteriaType=round(row['CriteriaType'], 6),
-                    CriteriaVarType=round(row['CriteriaVarType'], 6),
-                    CriteriaPercentage=row['CriteriaPercentage']
-                )
-                db.session.add(csv_data)
+                # Check for existing record in CSVData
+                existing_csv_data = CSVData.query.filter_by(Iteration=row['Iteration']).first()
 
-                # Add data to selected modules
+                if existing_csv_data:
+                    # Update existing record
+                    update_record(existing_csv_data, row)
+                else:
+                    # Create a new record for CSVData
+                    csv_data = create_csv_data(row)
+                    db.session.add(csv_data)
+
+                # Process modules
                 for module in selected_modules:
                     module_class = get_module_class(module)
                     if module_class:
-                        module_record = module_class(**row.to_dict())
-                        db.session.add(module_record)
+                        # Check for existing record in the module
+                        existing_module_data = module_class.query.filter_by(Iteration=row['Iteration']).first()
 
+                        if existing_module_data:
+                            # Update existing module record
+                            update_record(existing_module_data, row)
+                        else:
+                            # Create a new module record
+                            module_record = module_class(**row.to_dict())
+                            db.session.add(module_record)
+
+            flash("Upload successful!", "success")
             db.session.commit()
             return redirect(url_for('landing_page'))
         except Exception as e:

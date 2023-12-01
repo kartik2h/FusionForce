@@ -208,6 +208,7 @@
               
                       <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
                   </form>
+
                 </br>
               </div>
               </div>
@@ -283,6 +284,17 @@
     <script src="assets/js/sleek.js"></script>
   <link href="assets/options/optionswitch.css" rel="stylesheet">
 <script src="assets/options/optionswitcher.js"></script>
+
+  <script>
+    window.addEventListener('load', (event) => {
+        {% for message, category in get_flashed_messages(with_categories=true) %}
+            if (category === 'success') {
+                alert("{{ message }}");  // Popup alert
+            }
+        {% endfor %}
+    });
+</script>
+
 </body>
 </html>
 
