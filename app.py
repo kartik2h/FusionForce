@@ -226,6 +226,21 @@ def data_analysis():
 
     return jsonify(analysis)
 
+@app.route('/extended_data_analysis')
+def extended_data_analysis():
+    data = CSVData.query.all()
+
+    # Convert data to DataFrame
+    df = pd.DataFrame([vars(d) for d in data])
+    df.drop('_sa_instance_state', axis=1, inplace=True)  # Remove unnecessary column
+
+    # Analysis for sum and count
+    analysis = {
+        'sum': df.sum().to_dict(),      # Sum of each column
+        'count': df.count().to_dict()   # Count of non-null records in each column
+    }
+
+    return jsonify(analysis)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -244,14 +259,14 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        is_admin = 'admin' in request.form  # Check if the admin checkbox was ticked
+        is_admin = request.form['admin']
 
         try:
             new_user = User(username=username, password=password)
             db.session.add(new_user)
 
             # Add to Check_Admin table if is_admin is True
-            if is_admin:
+            if int(is_admin):
                 db.session.add(Check_Admin(username=username))
 
             db.session.commit()
@@ -346,19 +361,26 @@ def landing_page():
 @app.route('/edited_analytics', methods=['GET'])
 def analytics():
     return render_template('theme/edited_analytics.html')
-
+    
 @app.route('/delete_selected_users', methods=['POST'])
 def delete_selected_users():
     try:
-        user_ids = request.form.getlist('user_ids')  # Get list of selected user IDs
-        for user_id in user_ids:
-            user = User.query.get(int(user_id))
+        user_usernames = request.form.getlist('user_usernames')  # Get list of selected user usernames
+        for user_username in user_usernames:
+            # Query for the user in the User model
+            user = User.query.filter_by(username=user_username).first()
             if user:
-                db.session.delete(user)
+                # Query for the user in the Check_Admin model
+                admin_user = Check_Admin.query.filter_by(username=user_username).first()
+                if admin_user:
+                    db.session.delete(admin_user)  # Delete from Check_Admin if exists
+                db.session.delete(user)  # Delete from User model
+
         db.session.commit()
         return redirect(url_for('manage_users', message="Users deleted successfully"))
     except Exception as e:
         return str(e)
+
 
 @app.route('/manage_users', methods=['GET'])
 def manage_users():
