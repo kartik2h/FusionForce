@@ -240,13 +240,25 @@ def login():
 @app.route('/view_data', methods=['GET'])
 def view_data():
     selected_filters = request.args.getlist('filter')
+    selected_modules = request.args.getlist('module')
+
+    # Determine which model to use based on the selected module
+    model = CSVData  # Default model
+    if 'module1' in selected_modules:
+        model = Module1
+    elif 'module2' in selected_modules:
+        model = Module2
+    elif 'module3' in selected_modules:
+        model = Module3
+    elif 'module4' in selected_modules:
+        model = Module4
 
     # Default to displaying all fields if no checkboxes are selected
     if not selected_filters:
-        selected_filters = ['Iteration', 'CPUTime', 'PhysTime', 'Travels', 'Value', 'AvValue', 'MinValue', 'MaxValue', 'Delta', 'Criteria', 'PrevAvRefValue', 'Progress', 'CriteriaType', 'CriteriaVarType', 'CriteriaPercentage']
+        selected_filters = [column.name for column in model.__table__.columns]
 
-    # Start with all records
-    all_data = CSVData.query
+    # Start with all records from the selected model
+    all_data = model.query
     min_value = request.args.get('minValue', type=float)
     max_value = request.args.get('maxValue', type=float)
 
@@ -254,7 +266,7 @@ def view_data():
     filter_conditions = []
     for filter_col in selected_filters:
         if min_value is not None and max_value is not None:
-            filter_conditions.append(getattr(CSVData, filter_col).between(min_value, max_value))
+            filter_conditions.append(getattr(model, filter_col).between(min_value, max_value))
 
     if filter_conditions:
         all_data = all_data.filter(and_(*filter_conditions))
@@ -271,6 +283,7 @@ def view_data():
 
     session['selected_filters'] = selected_filters
     return render_template('theme/view_data.html', records=filtered_data, selected_filters=selected_filters)
+
 
 @app.route('/edit_index', methods=['GET'])
 def landing_page():

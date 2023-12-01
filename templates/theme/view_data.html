@@ -181,7 +181,7 @@
                             <div class="card-header justify-content-between">
                                 <h2>Extract Data</h2>
                             </div>
-                            <div class="card-body" data-simplebar style="height: 600px;">
+                            <div class="card-body" data-simplebar style="height: 700px;">
                                 <div class="filter-section">
                                   <form action="/view_data" method="get">
                                         <div class="row">
@@ -211,6 +211,15 @@
                                           <input type="number" name="minValue" id="minValue" placeholder="Min Value">
                                           <input type="number" name="maxValue" id="maxValue" placeholder="Max Value">
                                       </div>
+                                      </br>
+                                      <!-- Module checkboxes -->
+                                      <div class="module-filter">
+                                        <label><input type="checkbox" name="module" value="module1"> Module 1</label><br>
+                                        <label><input type="checkbox" name="module" value="module2"> Module 2</label><br>
+                                        <label><input type="checkbox" name="module" value="module3"> Module 3</label><br>
+                                        <label><input type="checkbox" name="module" value="module4"> Module 4</label>
+                                      </div>
+
                                         <br>
                                         <button type="submit" class="filter-button">Apply Filters</button>
                                     </form>
